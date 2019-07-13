@@ -1,5 +1,6 @@
 <script>
   import Card from './Card.svelte';
+  import { columns } from './store';
   import { quintOut } from 'svelte/easing';
   import { crossfade } from 'svelte/transition';
   import { flip } from 'svelte/animate';
@@ -21,32 +22,9 @@
 		}
   });
 
-  let columns = [
-    {
-      id: 0,
-      name: 'Todo',
-      cards:  [
-        { id: 0, content: 'Go shopping' },
-        { id: 1, content: 'Do the laundry' }
-      ]
-    },
-    {
-      id: 1,
-      name: 'In progress',
-      cards: [
-        { id: 2, content: 'Program a kanban app' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Done',
-      cards: []
-    }
-  ];
-
   function createCard(columnIndex) {
-    columns[columnIndex].cards = [
-      ...columns[columnIndex].cards,
+    $columns[columnIndex].cards = [
+      ...$columns[columnIndex].cards,
       {
         id: Math.random().toString(36).substring(2, 15),
         content: ''
@@ -55,19 +33,19 @@
   }
 
   function addColumn() {
-    columns = [...columns, { id: columns.length, name: 'Placeholder', cards: [] }];
+    $columns = [...$columns, { id: $columns.length, name: 'Placeholder', cards: [] }];
   }
 
   function removeColumn() {
-    if(columns.length > 1) {
-      columns = columns.slice(0, -1);
+    if($columns.length > 1) {
+      $columns = $columns.slice(0, -1);
     }
   }
 
   function moveToNext(columnIndex, card) {
-    columns[columnIndex].cards = columns[columnIndex].cards.filter(c => c.id !== card.id);
-    if(columnIndex < columns.length - 1) {
-      columns[columnIndex + 1].cards = [...columns[columnIndex+1].cards, card];
+    $columns[columnIndex].cards = $columns[columnIndex].cards.filter(c => c.id !== card.id);
+    if(columnIndex < $columns.length - 1) {
+      $columns[columnIndex + 1].cards = [...$columns[columnIndex+1].cards, card];
     }
   }
 </script>
@@ -138,7 +116,7 @@
     <button on:click={removeColumn}>Remove Column</button>
   </header>
   <div class="board">
-    {#each columns as column, columnIndex }
+    {#each $columns as column, columnIndex }
       <div class="column" in:receive="{{key: columnIndex}}" out:send="{{key: columnIndex}}">
         <div class="col-title">
           <div class="name">
